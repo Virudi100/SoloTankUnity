@@ -10,8 +10,8 @@ public class FollowPlayer : MonoBehaviour
     void Update()
     {
         transform.position = tankCanon.transform.position;
-        transform.rotation = tankCanon.transform.rotation;
+        //transform.rotation = tankCanon.transform.rotation;
 
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 }

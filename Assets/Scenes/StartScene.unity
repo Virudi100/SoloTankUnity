@@ -676,7 +676,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obus: {fileID: 5274158157397765374, guid: c32a8f2805f1ad04a951e8c649a66edc, type: 3}
   bulletExit: {fileID: 658494113}
+  cam: {fileID: 8599837317599446232}
   tankCanon: {fileID: 1807497741}
+  offset: {x: 0, y: 0, z: 0}
+  speedRotate: 5
 --- !u!1 &567627362
 GameObject:
   m_ObjectHideFlags: 0
@@ -2132,7 +2135,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1807497741}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.50000006, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_Children:
@@ -2582,7 +2585,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6277990128409849921}
   m_LocalRotation: {x: 0.23926874, y: -0, z: -0, w: 0.97095346}
-  m_LocalPosition: {x: 5.381, y: 3.7549999, z: -6.08}
+  m_LocalPosition: {x: -0.22, y: 0, z: -8.31}
   m_LocalScale: {x: 0.5, y: 0.50000006, z: 0.50000006}
   m_Children:
   - {fileID: 4489766140354250208}
@@ -2597,7 +2600,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5800883926629257616}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.66, z: -3.84}
+  m_LocalPosition: {x: 0, y: 2.59, z: -7.24}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3504650117043149532}
