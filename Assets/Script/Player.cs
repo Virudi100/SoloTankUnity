@@ -51,12 +51,9 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            
-            
+            //tankCanon.transform.rotation = Quaternion.LookRotation(new Vector3(rayHit.point.x, 0, -rayHit.point.z));
             Fire();
-
         }
-
 
         if (Input.GetKey(KeyCode.A))
         {
@@ -89,21 +86,16 @@ public class Player : MonoBehaviour
 
         */
 
-        
-
-
         tankCanon.transform.rotation = Quaternion.LookRotation(new Vector3(ray.direction.x, 0, ray.direction.z));
 
         Debug.DrawRay(tankCanon.transform.position, ray.direction * 10, Color.blue);
         Debug.DrawRay(ray.origin, ray.direction * 10, Color.yellow);
-
     }
 
     private void Fire()
     {
         newBullet = Instantiate(obus, bulletExit.position, Quaternion.identity);
         newBullet.GetComponent<Rigidbody>().AddForce(bulletExit.forward * shootSpeed);
-
     }
 }
 
