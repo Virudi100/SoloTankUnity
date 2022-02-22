@@ -47,6 +47,7 @@ public class Turret : MonoBehaviour
 
                 Debug.DrawRay(canonTurret.position, direction, Color.green);
 
+
             }
         }
     }

@@ -8,6 +8,7 @@ public class FollowPlayer : MonoBehaviour
 
     void Update()
     {
-        transform.position = tankCanon.transform.position;
+        if(tankCanon != null)
+                    transform.position = tankCanon.transform.position;
     }
 }

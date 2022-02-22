@@ -7,22 +7,40 @@ public class Player : MonoBehaviour
     private float moveSpeed = 2;
 
     [SerializeField] private GameObject obus;
+    [SerializeField] private GameObject mgBullet;
     [SerializeField] private Transform bulletExit;
     private GameObject newBullet;
+    private GameObject newMGBullet;
+    [SerializeField] private Transform bulletMGexit;
     private float shootSpeed = 1000f;
 
-    private float sensitivity = 100;
+    /*private float sensitivity = 100;
     private float X;
-    private float Y;
+    private float Y;*/
 
     [SerializeField] private Camera cam;
-
     [SerializeField] private GameObject tankCanon;
-
     private float speedRotate = 35;
+    private bool canShoot = true;
+    private bool canShootMG = true;
 
     RaycastHit rayHit;
-    Ray ray;
+    Ray mouseRay;
+
+
+    [Header("Sprite Reload")]
+    [SerializeField] private GameObject sprite3sec;
+    [SerializeField] private GameObject sprite2sec;
+    [SerializeField] private GameObject sprite1sec;
+
+
+    private float maxDistance;
+    private void Start()
+    {
+        sprite3sec.SetActive(false);
+        sprite2sec.SetActive(false);
+        sprite1sec.SetActive(false);
+    }
 
     // Update is called once per frame
     void Update()
@@ -34,9 +52,6 @@ public class Player : MonoBehaviour
 
     private void IsInput()
     {
-        ray = cam.ScreenPointToRay(Input.mousePosition);
-        Physics.Raycast(ray.origin, ray.direction, out rayHit);
-
         if (Input.GetAxis("Horizontal") < 0)
             transform.Rotate(0, -30 * Time.deltaTime, 0);
 
@@ -51,8 +66,11 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            //tankCanon.transform.rotation = Quaternion.LookRotation(new Vector3(rayHit.point.x, 0, -rayHit.point.z));
-            Fire();
+            if (canShoot == true)
+            {
+                canShoot = false;
+                StartCoroutine(Fire());
+            }
         }
 
         if (Input.GetKey(KeyCode.A))
@@ -74,6 +92,16 @@ public class Player : MonoBehaviour
         {
             cam.transform.Translate(0, 0, -speedRotate * Time.deltaTime);
         }
+
+        if(Input.GetKey(KeyCode.Space))
+        {
+            if(canShootMG == true)
+            {
+                canShootMG = false;
+                StartCoroutine(FireMG());
+            }
+            
+        }
     }
 
     private void MouseMove()
@@ -85,17 +113,79 @@ public class Player : MonoBehaviour
         X += Input.GetAxis("Mouse X") * (sensitivity * Time.deltaTime);
 
         */
+        RaycastHit hit;
+        mouseRay = cam.ScreenPointToRay(Input.mousePosition);
 
-        tankCanon.transform.rotation = Quaternion.LookRotation(new Vector3(ray.direction.x, 0, ray.direction.z));
-
-        Debug.DrawRay(tankCanon.transform.position, ray.direction * 10, Color.blue);
-        Debug.DrawRay(ray.origin, ray.direction * 10, Color.yellow);
+        if (Physics.Raycast(mouseRay.origin, mouseRay.direction, out hit))
+        {
+            if(hit.collider)
+                tankCanon.transform.LookAt(new Vector3(hit.point.x,0,hit.point.z));
+        }
+        
+        Debug.DrawRay(tankCanon.transform.position, mouseRay.direction * 10, Color.blue);
+        Debug.DrawRay(mouseRay.origin, mouseRay.direction * 10, Color.yellow);
     }
 
-    private void Fire()
+    IEnumerator Fire()
     {
         newBullet = Instantiate(obus, bulletExit.position, Quaternion.identity);
         newBullet.GetComponent<Rigidbody>().AddForce(bulletExit.forward * shootSpeed);
+        newBullet.transform.parent = null;
+
+        StartCoroutine(Reload());
+
+        yield return null;
+        
+    }
+
+    IEnumerator FireMG()
+    {
+        newMGBullet = Instantiate(mgBullet, bulletMGexit.position, Quaternion.identity);
+        newMGBullet.GetComponent<Rigidbody>().AddForce(bulletMGexit.forward * shootSpeed);
+        newMGBullet.transform.parent = null;
+        
+        yield return new WaitForSeconds(0.2f);
+        
+        canShootMG = true;
+    }
+
+    IEnumerator Reload()
+    {
+        int i = 4;
+
+        while(i > 0)
+        {
+            i--;
+
+            yield return new WaitForSeconds(1f);
+
+            if (i == 3)
+            {
+                sprite3sec.SetActive(true);
+                sprite2sec.SetActive(false);
+                sprite1sec.SetActive(false);
+            }
+            else if( i ==2)
+            {
+                sprite3sec.SetActive(false);
+                sprite2sec.SetActive(true);
+                sprite1sec.SetActive(false);
+            }
+            else if(i ==1)
+            {
+                sprite3sec.SetActive(false);
+                sprite2sec.SetActive(false);
+                sprite1sec.SetActive(true);
+            }
+            else
+            {
+                sprite3sec.SetActive(false);
+                sprite2sec.SetActive(false);
+                sprite1sec.SetActive(false);
+
+                canShoot = true;
+            }
+        }   
     }
 }
 
