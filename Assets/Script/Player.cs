@@ -19,6 +19,8 @@ public class Player : MonoBehaviour
     private float _speedRotate = 35;
     private bool _canShoot = true;
     private bool _canShootMG = true;
+    [SerializeField] private GameObject _Door;
+    [SerializeField] private int nbrOfTarget = 0;
 
     RaycastHit rayHit;
     Ray mouseRay;

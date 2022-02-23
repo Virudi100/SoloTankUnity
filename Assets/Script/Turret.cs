@@ -11,9 +11,10 @@ public class Turret : MonoBehaviour
     [SerializeField] private GameObject obus;
     [SerializeField] private Transform bulletExit;
     private GameObject newBullet;
-    private float shootSpeed = 120f;
+    private float shootSpeed = 300f;
     private bool canShoot = true;
     [SerializeField] private Transform canonTurret;
+    private int detectionIndex = 15;
 
     private RaycastHit rayHit;
 
@@ -30,7 +31,7 @@ public class Turret : MonoBehaviour
 
             Vector3 direction = Vector3.Normalize(player.transform.position - canonTurret.position);
 
-            if (Physics.Raycast(canonTurret.position, direction, out rayHit, 6))
+            if (Physics.Raycast(canonTurret.position, direction, out rayHit, detectionIndex))
             {
                 if (rayHit.collider.gameObject.CompareTag("Player"))
                 {
@@ -58,7 +59,7 @@ public class Turret : MonoBehaviour
         newBullet.GetComponent<Rigidbody>().AddForce(bulletExit.forward * shootSpeed);
         newBullet.transform.parent = null;
 
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
         canShoot = true;
     }
 }
