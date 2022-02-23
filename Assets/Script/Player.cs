@@ -6,40 +6,28 @@ public class Player : MonoBehaviour
 {
     private float moveSpeed = 2;
 
-    [SerializeField] private GameObject obus;
-    [SerializeField] private GameObject mgBullet;
-    [SerializeField] private Transform bulletExit;
-    private GameObject newBullet;
-    private GameObject newMGBullet;
-    [SerializeField] private Transform bulletMGexit;
-    private float shootSpeed = 1000f;
+    [SerializeField] private GameObject _obus;
+    [SerializeField] private GameObject _mgBullet;
+    [SerializeField] private Transform _bulletExit;
+    private GameObject _newBullet;
+    private GameObject _newMGBullet;
+    [SerializeField] private Transform _bulletMGexit;
+    private float _shootSpeed = 1000f;
 
-    /*private float sensitivity = 100;
-    private float X;
-    private float Y;*/
-
-    [SerializeField] private Camera cam;
-    [SerializeField] private GameObject tankCanon;
-    private float speedRotate = 35;
-    private bool canShoot = true;
-    private bool canShootMG = true;
+    [SerializeField] private Camera _cam;
+    [SerializeField] private GameObject _tankCanon;
+    private float _speedRotate = 35;
+    private bool _canShoot = true;
+    private bool _canShootMG = true;
 
     RaycastHit rayHit;
     Ray mouseRay;
 
+    [SerializeField] private GameObject spriteCD;
 
-    [Header("Sprite Reload")]
-    [SerializeField] private GameObject sprite3sec;
-    [SerializeField] private GameObject sprite2sec;
-    [SerializeField] private GameObject sprite1sec;
-
-
-    private float maxDistance;
     private void Start()
     {
-        sprite3sec.SetActive(false);
-        sprite2sec.SetActive(false);
-        sprite1sec.SetActive(false);
+        spriteCD.SetActive(false);
     }
 
     // Update is called once per frame
@@ -47,7 +35,6 @@ public class Player : MonoBehaviour
     {
         IsInput();
         MouseMove();
-
     }
 
     private void IsInput()
@@ -66,41 +53,40 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            if (canShoot == true)
+            if (_canShoot == true)
             {
-                canShoot = false;
+                _canShoot = false;
                 StartCoroutine(Fire());
             }
         }
 
         if (Input.GetKey(KeyCode.A))
         {
-            cam.transform.parent.Rotate(0, -speedRotate * Time.deltaTime, 0, Space.World);
+            _cam.transform.parent.Rotate(0, -_speedRotate * Time.deltaTime, 0, Space.World);
         }
 
         if (Input.GetKey(KeyCode.E))
         {
-            cam.transform.parent.Rotate(0, speedRotate * Time.deltaTime, 0, Space.World);
+            _cam.transform.parent.Rotate(0, _speedRotate * Time.deltaTime, 0, Space.World);
         }
 
         if (Input.mouseScrollDelta.y > 0)
         {
-            cam.transform.Translate(0, 0, speedRotate * Time.deltaTime);
+            _cam.transform.Translate(0, 0, _speedRotate * Time.deltaTime);
         }
 
         if (Input.mouseScrollDelta.y < 0)
         {
-            cam.transform.Translate(0, 0, -speedRotate * Time.deltaTime);
+            _cam.transform.Translate(0, 0, -_speedRotate * Time.deltaTime);
         }
 
-        if(Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space))
         {
-            if(canShootMG == true)
+            if (_canShootMG == true)
             {
-                canShootMG = false;
+                _canShootMG = false;
                 StartCoroutine(FireMG());
             }
-            
         }
     }
 
@@ -113,81 +99,50 @@ public class Player : MonoBehaviour
         X += Input.GetAxis("Mouse X") * (sensitivity * Time.deltaTime);
 
         */
+
         RaycastHit hit;
-        mouseRay = cam.ScreenPointToRay(Input.mousePosition);
+        mouseRay = _cam.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(mouseRay.origin, mouseRay.direction, out hit))
         {
-            if(hit.collider)
-                tankCanon.transform.LookAt(new Vector3(hit.point.x,0,hit.point.z));
+            if (hit.collider)
+                _tankCanon.transform.LookAt(new Vector3(hit.point.x, 0, hit.point.z));
         }
-        
-        Debug.DrawRay(tankCanon.transform.position, mouseRay.direction * 10, Color.blue);
+
+        Debug.DrawRay(_tankCanon.transform.position, mouseRay.direction * 10, Color.blue);
         Debug.DrawRay(mouseRay.origin, mouseRay.direction * 10, Color.yellow);
     }
 
     IEnumerator Fire()
     {
-        newBullet = Instantiate(obus, bulletExit.position, Quaternion.identity);
-        newBullet.GetComponent<Rigidbody>().AddForce(bulletExit.forward * shootSpeed);
-        newBullet.transform.parent = null;
+        _newBullet = Instantiate(_obus, _bulletExit.position, Quaternion.identity);
+        _newBullet.GetComponent<Rigidbody>().AddForce(_bulletExit.forward * _shootSpeed);
+        _newBullet.transform.parent = null;
 
         StartCoroutine(Reload());
 
         yield return null;
-        
     }
 
     IEnumerator FireMG()
     {
-        newMGBullet = Instantiate(mgBullet, bulletMGexit.position, Quaternion.identity);
-        newMGBullet.GetComponent<Rigidbody>().AddForce(bulletMGexit.forward * shootSpeed);
-        newMGBullet.transform.parent = null;
-        
+        _newMGBullet = Instantiate(_mgBullet, _bulletMGexit.position, Quaternion.identity);
+        _newMGBullet.GetComponent<Rigidbody>().AddForce(_bulletMGexit.forward * _shootSpeed);
+        _newMGBullet.transform.parent = null;
+
         yield return new WaitForSeconds(0.2f);
-        
-        canShootMG = true;
+
+        _canShootMG = true;
     }
 
     IEnumerator Reload()
     {
-        int i = 4;
+        spriteCD.gameObject.SetActive(true);
+        spriteCD.GetComponent<Animator>().SetTrigger("begin");
 
-        while(i > 0)
-        {
-            i--;
+        yield return new WaitForSeconds(3f);
+        spriteCD.gameObject.SetActive(false);
 
-            yield return new WaitForSeconds(1f);
-
-            if (i == 3)
-            {
-                sprite3sec.SetActive(true);
-                sprite2sec.SetActive(false);
-                sprite1sec.SetActive(false);
-            }
-            else if( i ==2)
-            {
-                sprite3sec.SetActive(false);
-                sprite2sec.SetActive(true);
-                sprite1sec.SetActive(false);
-            }
-            else if(i ==1)
-            {
-                sprite3sec.SetActive(false);
-                sprite2sec.SetActive(false);
-                sprite1sec.SetActive(true);
-            }
-            else
-            {
-                sprite3sec.SetActive(false);
-                sprite2sec.SetActive(false);
-                sprite1sec.SetActive(false);
-
-                canShoot = true;
-            }
-        }   
+        _canShoot = true;
     }
 }
-
-
-/* Faire apparaitre le raycast du tank au moment du tire car tu sais ou le tire doit aller*/

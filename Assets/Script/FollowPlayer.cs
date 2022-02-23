@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class FollowPlayer : MonoBehaviour
 {
-    [SerializeField] private GameObject tankCanon;
+    [SerializeField] private GameObject _tankCanon;
 
     void Update()
     {
-        if(tankCanon != null)
-                    transform.position = tankCanon.transform.position;
+        if(_tankCanon != null)
+                    transform.position = _tankCanon.transform.position;
     }
 }
