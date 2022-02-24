@@ -28,7 +28,6 @@ public class Turret : MonoBehaviour
     {
         if (player.gameObject != null)
         {
-
             Vector3 direction = Vector3.Normalize(player.transform.position - canonTurret.position);
 
             if (Physics.Raycast(canonTurret.position, direction, out rayHit, detectionIndex))
@@ -36,7 +35,7 @@ public class Turret : MonoBehaviour
                 if (rayHit.collider.gameObject.CompareTag("Player"))
                 {
                     {
-                        transform.rotation = Quaternion.LookRotation(direction * Time.deltaTime);
+                        transform.rotation = Quaternion.LookRotation(new Vector3(direction.x,0,direction.z) * Time.deltaTime);
 
                         if (canShoot == true)
                         {
@@ -45,10 +44,7 @@ public class Turret : MonoBehaviour
                         }
                     }
                 }
-
                 Debug.DrawRay(canonTurret.position, direction, Color.green);
-
-
             }
         }
     }

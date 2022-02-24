@@ -4,21 +4,27 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    private GameObject _player;
+
+    private void Start()
+    {
+        _player = GameObject.FindGameObjectWithTag("Player");
+        StartCoroutine(LifeTime());
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("turret"))
         {
+            _player.GetComponent<Player>().nbrOfTarget--;
             Destroy(collision.gameObject);
         }
-
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            Destroy(collision.gameObject);
-            Time.timeScale = 0;
-        }
-
         Destroy(gameObject);
-
     }
 
+    IEnumerator LifeTime()
+    {
+        yield return new WaitForSeconds(1);
+        Destroy(gameObject);
+    }
 }

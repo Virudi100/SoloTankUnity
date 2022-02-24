@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -20,9 +21,11 @@ public class Player : MonoBehaviour
     private bool _canShoot = true;
     private bool _canShootMG = true;
     [SerializeField] private GameObject _Door;
-    [SerializeField] private int nbrOfTarget = 0;
+    public int nbrOfTarget = 0;
 
-    RaycastHit rayHit;
+    [SerializeField] private GameObject winCanvas;
+    [SerializeField] private GameObject loseCanvas;
+    
     Ray mouseRay;
 
     [SerializeField] private GameObject spriteCD;
@@ -30,13 +33,14 @@ public class Player : MonoBehaviour
     private void Start()
     {
         spriteCD.SetActive(false);
+        winCanvas.SetActive(false);
     }
 
-    // Update is called once per frame
     void Update()
     {
         IsInput();
         MouseMove();
+        CheckTargetLeft();
     }
 
     private void IsInput()
@@ -94,13 +98,6 @@ public class Player : MonoBehaviour
 
     private void MouseMove()
     {
-        /*
-        //Gere le deplacement de la caméra avec la souris
-
-        Y += Input.GetAxis("Mouse Y") * (sensitivity * Time.deltaTime);
-        X += Input.GetAxis("Mouse X") * (sensitivity * Time.deltaTime);
-
-        */
 
         RaycastHit hit;
         mouseRay = _cam.ScreenPointToRay(Input.mousePosition);
@@ -122,7 +119,6 @@ public class Player : MonoBehaviour
         _newBullet.transform.parent = null;
 
         StartCoroutine(Reload());
-
         yield return null;
     }
 
@@ -133,7 +129,6 @@ public class Player : MonoBehaviour
         _newMGBullet.transform.parent = null;
 
         yield return new WaitForSeconds(0.2f);
-
         _canShootMG = true;
     }
 
@@ -146,5 +141,21 @@ public class Player : MonoBehaviour
         spriteCD.gameObject.SetActive(false);
 
         _canShoot = true;
+    }
+
+    private void CheckTargetLeft()
+    {
+        if(nbrOfTarget <= 0)
+        {
+            _Door.GetComponent<Animator>().SetTrigger("open");
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.CompareTag("End"))
+        {
+            winCanvas.SetActive(true);
+        }
     }
 }
