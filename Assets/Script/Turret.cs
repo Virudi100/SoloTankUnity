@@ -2,38 +2,55 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class Turret : MonoBehaviour
 {
-
     [SerializeField] private GameObject player;
 
-
+    [Header("Shoot System")]
     [SerializeField] private GameObject obus;
     [SerializeField] private Transform bulletExit;
     private GameObject newBullet;
     private float shootSpeed = 300f;
     private bool canShoot = true;
+
+    //Bool de Reparation
+    private bool canRepare = true;
+
+
+    [Header("Dectection")]
     [SerializeField] private Transform canonTurret;
     public int detectionIndex = 10;
 
+
+    [Header("Raycast")]
     private RaycastHit rayHit;
     Vector3 direction;
 
     [Header("State Machine")]
     public turretStatut state = turretStatut.None;
     public turretStatut nextState = turretStatut.None;
+
+    [Header("Navigation")]
     private NavMeshAgent navMesh;
     [SerializeField] private GameObject pointA;
     [SerializeField] private GameObject pointB;
+    [SerializeField] private GameObject pointFuite;
 
     private Vector3 exDestination;
     private bool goA = true;
     private bool goB = false;
 
+    //Bool: le tank a t'il etait detecter ?
     private bool tankdetected = false;
 
-    int i = 0;
+    [Header("HP System")]
+    public int HP = 3;
+    [SerializeField] private Sprite fullHP;
+    [SerializeField] private Sprite twoHP;
+    [SerializeField] private Sprite oneHP;
+    [SerializeField] private Image hpBar;
 
     public enum turretStatut
     {
@@ -42,6 +59,8 @@ public class Turret : MonoBehaviour
         Shooting,
         Patrol,
         Alert,
+        RunAway,
+        Repare,
     }
 
     private void Start()
@@ -61,6 +80,8 @@ public class Turret : MonoBehaviour
             TransitionOrChangeState();
         }
         StateBehavior();
+
+        HpSystem();
     }
 
     // on fait un switch par état, chaque état n'accepte que ses propres transitions.
@@ -71,13 +92,18 @@ public class Turret : MonoBehaviour
             case turretStatut.None:
                 break;
 
-            case turretStatut.Searching:
+            /*case turretStatut.Searching:
                 if(tankdetected)
                 {
                     nextState = turretStatut.Shooting;
                     return true;
                 }
-                break;
+                if (HP == 1)
+                {
+                    nextState = turretStatut.RunAway;
+                    return true;
+                }
+                break;*/
 
             case turretStatut.Shooting:
 
@@ -86,25 +112,64 @@ public class Turret : MonoBehaviour
                     nextState = turretStatut.Patrol;
                     return true;
                 }
+                if (HP == 1)
+                {
+                    nextState = turretStatut.RunAway;
+                    return true;
+                }
                 break;
 
             case turretStatut.Patrol:
                
-                if(tankdetected)
+                if(tankdetected && nextState != turretStatut.RunAway)
                 {
                     nextState = turretStatut.Alert;
                     return true;
-
+                }
+                if(HP == 1)
+                {
+                    nextState = turretStatut.RunAway;
+                    return true;
                 }
                 break;
 
             case turretStatut.Alert:
                 
-                if(!tankdetected)
+                if(!tankdetected && nextState != turretStatut.RunAway)
                 {
                     nextState = turretStatut.Patrol;
                     return true;
+                }
+                if (HP == 1)
+                {
+                    nextState = turretStatut.RunAway;
+                    return true;
+                }
+                break;
 
+            case turretStatut.RunAway:
+                if (navMesh.remainingDistance < 0.5f)
+                {
+                    nextState = turretStatut.Repare;
+                    return true;
+                }
+                if (HP == 1)
+                {
+                    nextState = turretStatut.RunAway;
+                    return true;
+                }
+                break;
+
+            case turretStatut.Repare:
+                if(HP == 3)
+                {
+                    nextState = turretStatut.Patrol;
+                    return true;
+                }
+                if (HP == 1)
+                {
+                    nextState = turretStatut.RunAway;
+                    return true;
                 }
                 break;
         }
@@ -119,20 +184,24 @@ public class Turret : MonoBehaviour
             case turretStatut.None:
                 break;
 
-            case turretStatut.Searching:
-                break;
+           /*case turretStatut.Searching:
+                break;*/
 
             case turretStatut.Shooting:
                 break;
 
             case turretStatut.Patrol:
                 navMesh.SetDestination(exDestination);
-
                 break;
 
             case turretStatut.Alert:
                 exDestination = navMesh.destination;
+                break;
 
+            case turretStatut.RunAway:
+                break;
+
+            case turretStatut.Repare:
                 break;
         }
         state = nextState;
@@ -146,9 +215,9 @@ public class Turret : MonoBehaviour
             case turretStatut.None:
                 break;
 
-            case turretStatut.Searching:
+           /* case turretStatut.Searching:
                 Detecte();
-                break;
+                break;*/
 
             case turretStatut.Shooting:
                 TurnTurret();
@@ -161,7 +230,6 @@ public class Turret : MonoBehaviour
 
             case turretStatut.Patrol:
                 Detecte();
-
                 if(goA)
                 {
                     print("Going A");
@@ -186,10 +254,38 @@ public class Turret : MonoBehaviour
 
             case turretStatut.Alert:
                 Detecte();
-                navMesh.SetDestination(player.transform.position);
+
+                if(player != null)  
+                    navMesh.SetDestination(player.transform.position);
+
+                TurnTurret();
+                if (canShoot == true)
+                {
+                    canShoot = false;
+                    StartCoroutine(Fire());
+                }
                 print("hunt player");
                 break;
+
+            case turretStatut.RunAway:
+                navMesh.SetDestination(pointFuite.transform.position);
+                break;
+
+            case turretStatut.Repare:
+                if(HP < 3 && canRepare == true)
+                {
+                    canRepare = false;
+                    StartCoroutine(Reparing());
+                }
+                break;
         }
+    }
+
+    IEnumerator Reparing()
+    {
+        yield return new WaitForSeconds(1);
+        HP++;
+        canRepare = true;
     }
 
     private void Detecte()
@@ -203,7 +299,6 @@ public class Turret : MonoBehaviour
                 if (rayHit.collider.gameObject.CompareTag("Player"))
                 {
                     tankdetected = true;
-
                 }
                 else
                     tankdetected = false;
@@ -219,7 +314,6 @@ public class Turret : MonoBehaviour
         {
             transform.rotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z) * Time.deltaTime);
         }
-        
     }
 
     IEnumerator Fire()
@@ -232,31 +326,26 @@ public class Turret : MonoBehaviour
         canShoot = true;
     }
 
-
-    /*private void IsTankDetected()
+    private void HpSystem()
     {
-        if (player.gameObject != null)
+        switch(HP)
         {
-            Vector3 direction = Vector3.Normalize(player.transform.position - canonTurret.position);
+            case 3 :
+                hpBar.sprite = fullHP;
+                    break;
 
-            if (Physics.Raycast(canonTurret.position, direction, out rayHit, detectionIndex))
-            {
-                if (rayHit.collider.gameObject.CompareTag("Player"))
-                {
-                    {
-                        transform.rotation = Quaternion.LookRotation(new Vector3(direction.x,0,direction.z) * Time.deltaTime);
+            case 2:
+                hpBar.sprite = twoHP;
+                break;
 
-                        if (canShoot == true)
-                        {
-                            canShoot = false;
-                            state = turretStatut.Shooting;
-                        }
-                    }
-                }
-                Debug.DrawRay(canonTurret.position, direction, Color.green);
-            }
-        }
-    }*/
+            case 1:
+                hpBar.sprite = oneHP;
+                break;
 
-
+            case 0:
+                Destroy(this.gameObject);
+                player.GetComponent<Player>().nbrOfTarget--;
+                break;
+        }    
+    }
 }
