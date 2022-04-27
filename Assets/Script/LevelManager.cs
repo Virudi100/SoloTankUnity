@@ -16,7 +16,7 @@ public class LevelManager : MonoBehaviour
 
     void Update()
     {
-        if(_player == null)
+        if(_player == null)     //si le joueur est mort
         {
             loseCanvas.SetActive(true);
             Pause();

@@ -7,10 +7,10 @@ public class BulletMG : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(LifeTime());
+        StartCoroutine(LifeTime());  //Lance coroutine
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter(Collision collision) //si il rentre en collision avec une tourelle, lui enleve 1 HP et ce détruit lui meme
     {
         if (collision.gameObject.CompareTag("turret"))
         {
@@ -19,7 +19,7 @@ public class BulletMG : MonoBehaviour
         Destroy(gameObject);
     }
 
-    IEnumerator LifeTime()
+    IEnumerator LifeTime()   //S'autodetruit apres 1sec
     {
         yield return new WaitForSeconds(1);
         Destroy(gameObject);

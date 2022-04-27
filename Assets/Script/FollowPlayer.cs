@@ -8,7 +8,9 @@ public class FollowPlayer : MonoBehaviour
 
     void Update()
     {
-        if(_tankCanon != null)
-                    transform.position = _tankCanon.transform.position;
+        if(_tankCanon != null) //si le joueur est vivant
+        {
+            transform.position = _tankCanon.transform.position;
+        }  
     }
 }

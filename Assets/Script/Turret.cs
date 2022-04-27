@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
@@ -75,7 +74,7 @@ public class Turret : MonoBehaviour
     // dans tous les cas on applique le comportement de l'état en cours
     void Update()
     {
-        if(CheckForTransition())
+        if (CheckForTransition())
         {
             TransitionOrChangeState();
         }
@@ -87,7 +86,7 @@ public class Turret : MonoBehaviour
     // on fait un switch par état, chaque état n'accepte que ses propres transitions.
     private bool CheckForTransition()
     {
-        switch(state)
+        switch (state)
         {
             case turretStatut.None:
                 break;
@@ -107,7 +106,7 @@ public class Turret : MonoBehaviour
 
             case turretStatut.Shooting:
 
-                if(!tankdetected)
+                if (!tankdetected)
                 {
                     nextState = turretStatut.Patrol;
                     return true;
@@ -120,13 +119,13 @@ public class Turret : MonoBehaviour
                 break;
 
             case turretStatut.Patrol:
-               
-                if(tankdetected && nextState != turretStatut.RunAway)
+
+                if (tankdetected && nextState != turretStatut.RunAway)
                 {
                     nextState = turretStatut.Alert;
                     return true;
                 }
-                if(HP == 1)
+                if (HP == 1)
                 {
                     nextState = turretStatut.RunAway;
                     return true;
@@ -134,8 +133,8 @@ public class Turret : MonoBehaviour
                 break;
 
             case turretStatut.Alert:
-                
-                if(!tankdetected && nextState != turretStatut.RunAway)
+
+                if (!tankdetected && nextState != turretStatut.RunAway)
                 {
                     nextState = turretStatut.Patrol;
                     return true;
@@ -161,7 +160,7 @@ public class Turret : MonoBehaviour
                 break;
 
             case turretStatut.Repare:
-                if(HP == 3)
+                if (HP == 3)
                 {
                     nextState = turretStatut.Patrol;
                     return true;
@@ -179,13 +178,13 @@ public class Turret : MonoBehaviour
     // on applique les actions associées au transitions
     private void TransitionOrChangeState()
     {
-        switch(nextState)
+        switch (nextState)
         {
             case turretStatut.None:
                 break;
 
-           /*case turretStatut.Searching:
-                break;*/
+            /*case turretStatut.Searching:
+                 break;*/
 
             case turretStatut.Shooting:
                 break;
@@ -215,22 +214,28 @@ public class Turret : MonoBehaviour
             case turretStatut.None:
                 break;
 
-           /* case turretStatut.Searching:
-                Detecte();
-                break;*/
+            //////////////////////////
+
+            /*case turretStatut.Searching:
+                 Detecte();
+                 break;*/
+
+            ///////////////////////////
 
             case turretStatut.Shooting:
                 TurnTurret();
                 if (canShoot == true)
                 {
-                    canShoot = false;      
+                    canShoot = false;
                     StartCoroutine(Fire());
                 }
                 break;
 
+            ///////////////////////////
+
             case turretStatut.Patrol:
                 Detecte();
-                if(goA)
+                if (goA)
                 {
                     print("Going A");
                     if (navMesh.remainingDistance < 0.5f)
@@ -252,10 +257,11 @@ public class Turret : MonoBehaviour
                 }
                 break;
 
+            //////////////////////////
+
             case turretStatut.Alert:
                 Detecte();
-
-                if(player != null)  
+                if (player != null)
                     navMesh.SetDestination(player.transform.position);
 
                 TurnTurret();
@@ -267,12 +273,16 @@ public class Turret : MonoBehaviour
                 print("hunt player");
                 break;
 
+            ///////////////////////////
+
             case turretStatut.RunAway:
                 navMesh.SetDestination(pointFuite.transform.position);
                 break;
 
+            ///////////////////////////
+
             case turretStatut.Repare:
-                if(HP < 3 && canRepare == true)
+                if (HP < 3 && canRepare == true)
                 {
                     canRepare = false;
                     StartCoroutine(Reparing());
@@ -328,11 +338,11 @@ public class Turret : MonoBehaviour
 
     private void HpSystem()
     {
-        switch(HP)
+        switch (HP)
         {
-            case 3 :
+            case 3:
                 hpBar.sprite = fullHP;
-                    break;
+                break;
 
             case 2:
                 hpBar.sprite = twoHP;
@@ -346,6 +356,6 @@ public class Turret : MonoBehaviour
                 Destroy(this.gameObject);
                 player.GetComponent<Player>().nbrOfTarget--;
                 break;
-        }    
+        }
     }
 }
