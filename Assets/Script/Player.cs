@@ -36,7 +36,7 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject loseCanvas;
     [SerializeField] private GameObject spriteCD;
 
-    [HideInInspector] public int nbrOfTarget = 0;
+    public int nbrOfTarget = 0;
     private Ray mouseRay;
 
     private void Start() //desactive l'UI
